@@ -6,6 +6,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface MancalaGameBoard {
     ImmutableList<Integer> getBlack();
+
     ImmutableList<Integer> getWhite();
 
     static MancalaGameBoard empty() {
