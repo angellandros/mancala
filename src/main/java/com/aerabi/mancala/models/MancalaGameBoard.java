@@ -15,7 +15,7 @@ public interface MancalaGameBoard {
             int pitCount, int stoneCount, String player1, String player2) {
         final ImmutableList<Integer> initialState =
                 IntStream.rangeClosed(0, pitCount)
-                        .map(i -> stoneCount)
+                        .map(i -> i == pitCount ? 0 : stoneCount)
                         .boxed()
                         .collect(toImmutableList());
         return ImmutableMancalaGameBoard.builder()

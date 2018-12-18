@@ -1,7 +1,9 @@
 package com.aerabi.mancala;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
+import com.aerabi.mancala.models.Cell;
 import com.aerabi.mancala.models.ImmutableMancalaGameBoard;
 import com.aerabi.mancala.models.MancalaGameBoard;
 import com.google.common.collect.ImmutableList;
@@ -31,29 +33,52 @@ public class MancalaServiceImpl implements MancalaService {
     }
 
     @Override
-    public MancalaGameBoard play(String player, int pitNumber) {
-        final ImmutableMancalaGameBoard board = games.get(playerMapping.get(player));
-        final int pitStonesCount = board.getBoard().get(player).get(pitNumber);
-        final Range<Integer> distributeRange =
-                Range.openClosed(pitNumber, pitNumber + pitStonesCount);
-        final String opponent =
-                board.getBoard()
-                        .keySet()
-                        .stream()
-                        .filter(s -> !s.equals(player))
-                        .findAny()
-                        .orElseThrow(IllegalStateException::new);
+    public MancalaGameBoard play(String player, int pitIndex) {
+        checkArgument(playerMapping.containsKey(player), "No game initialized for player {}", player);
+        final String id = playerMapping.get(player);
+        final ImmutableMancalaGameBoard board = games.get(id);
+        checkArgument(board.getBoard().get(player).get(pitIndex) != 0, "Chosen pit is empty");
+        final String opponent = getOpponent(board, player);
+
+        final Range<Integer> distributeRange = getDistributeRange(board, player, pitIndex);
         final ImmutableList<Integer> linear =
                 ImmutableList.<Integer>builder()
                         .addAll(board.getBoard().get(player))
                         .addAll(board.getBoard().get(opponent))
                         .build();
-        return MancalaGameBoard.fromList(
+        final ImmutableList<Integer> newLinear =
                 IntStream.range(0, linear.size())
                         .boxed()
-                        .map(index -> linear.get(index) + (distributeRange.contains(index) ? 1 : 0))
-                        .collect(toImmutableList()),
-                player,
-                opponent);
+                        .map(index -> Cell.of(index, linear.get(index)))
+                        // Empty the chosen pit
+                        .map(
+                                cell ->
+                                        cell.withStones(
+                                                cell.getIndex() == pitIndex ? 0 : cell.getStones()))
+                        // Distribute the picked stones to the following pits
+                        .map(
+                                cell ->
+                                        cell.plusStones(
+                                                distributeRange.contains(cell.getIndex()) ? 1 : 0))
+                        .map(Cell::getStones)
+                        .collect(toImmutableList());
+        ImmutableMancalaGameBoard newBoard = MancalaGameBoard.fromList(newLinear, player, opponent);
+        games.put(id, newBoard);
+        return newBoard;
+    }
+
+    private Range<Integer> getDistributeRange(
+            final ImmutableMancalaGameBoard board, final String player, final int index) {
+        final int pitStonesCount = board.getBoard().get(player).get(index);
+        return Range.openClosed(index, index + pitStonesCount);
+    }
+
+    private String getOpponent(final ImmutableMancalaGameBoard board, final String player) {
+        return board.getBoard()
+                .keySet()
+                .stream()
+                .filter(s -> !s.equals(player))
+                .findAny()
+                .orElseThrow(IllegalStateException::new);
     }
 }
