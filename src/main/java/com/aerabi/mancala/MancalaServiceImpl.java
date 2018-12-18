@@ -67,6 +67,12 @@ public class MancalaServiceImpl implements MancalaService {
                                         distributeRange.contains(cell.getIndex())
                                                 ? cell.plusStones(1)
                                                 : cell)
+                        // Flag the last updated cell to decide turns
+                        .map(
+                                cell ->
+                                        distributeRange.upperEndpoint() == cell.getIndex()
+                                                ? cell.withIsLastUpdated(true)
+                                                : cell)
                         // Reindex
                         .map(cell -> cell.withIndex(cell.getIndex() % length))
                         .collect(toImmutableList());

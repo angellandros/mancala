@@ -36,7 +36,7 @@ public interface MancalaGameBoard {
         return ImmutableMancalaGameBoard.builder()
                 .putBoard(player1, pits.subList(0, length))
                 .putBoard(player2, pits.subList(length, length * 2))
-                .dran(pits.get(length).isLastUpdated() ? player1 : player2)
+                .dran(pits.get(length - 1).isLastUpdated() ? player1 : player2)
                 .build();
     }
 }
