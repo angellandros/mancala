@@ -30,7 +30,8 @@ public class MancalaServiceImplTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> service.play(PLAYER2, 0))
                 .withMessageContaining("turn");
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> service.play(PLAYER1, -1));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> service.play(PLAYER1, -1));
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> service.play(PLAYER1, 6));
         service.play(PLAYER1, 0);
