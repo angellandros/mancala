@@ -45,6 +45,10 @@ public class MancalaServiceImpl implements MancalaService {
                 player,
                 board.getDran());
         checkArgument(
+                Range.closedOpen(0, board.getLength()).contains(pitIndex),
+                "Invalid pit index, please choose in between 0 and %d",
+                board.getLength() - 1);
+        checkArgument(
                 board.getBoard().get(player).get(pitIndex).getStones() != 0, "Chosen pit is empty");
         final String opponent = getOpponent(board, player);
 

@@ -14,11 +14,13 @@ public class MancalaServiceImplTest {
     @Test
     public void testNewGame() {
         MancalaService service = new MancalaServiceImpl();
-        ImmutableMancalaGameBoard board = service.newGame(PLAYER1, PLAYER2);
+        final ImmutableMancalaGameBoard board = service.newGame(PLAYER1, PLAYER2);
+        final int length = board.getLength();
         assertThat(board.getBoard().keySet()).containsExactly(PLAYER1, PLAYER2);
         assertThat(board.getDran()).isEqualTo(PLAYER1);
-        assertThat(board.getBoard().get(PLAYER1)).endsWith(Cell.of(6, 0).withIsBigPit(true));
-        assertThat(board.getBoard().get(PLAYER1).subList(0, 6)).allMatch(cell -> !cell.isBigPit());
+        assertThat(board.getBoard().get(PLAYER1)).endsWith(Cell.of(length, 0).withIsBigPit(true));
+        assertThat(board.getBoard().get(PLAYER1).subList(0, length))
+                .allMatch(cell -> !cell.isBigPit());
     }
 
     @Test
@@ -28,7 +30,7 @@ public class MancalaServiceImplTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> service.play(PLAYER2, 0))
                 .withMessageContaining("turn");
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.play(PLAYER1, -1));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> service.play(PLAYER1, -1));
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> service.play(PLAYER1, 6));
         service.play(PLAYER1, 0);

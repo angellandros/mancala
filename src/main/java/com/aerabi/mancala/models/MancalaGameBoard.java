@@ -15,6 +15,9 @@ public interface MancalaGameBoard {
     /** Wer ist dran? */
     String getDran();
 
+    /** Number of small pits for each player */
+    int getLength();
+
     static ImmutableMancalaGameBoard initial(
             int pitCount, int stoneCount, String player1, String player2) {
         final ImmutableList<ImmutableCell> initialState =
@@ -27,6 +30,7 @@ public interface MancalaGameBoard {
                 .putBoard(player1, initialState)
                 .putBoard(player2, initialState)
                 .dran(player1)
+                .length(pitCount)
                 .build();
     }
 
@@ -37,6 +41,7 @@ public interface MancalaGameBoard {
                 .putBoard(player1, pits.subList(0, length))
                 .putBoard(player2, pits.subList(length, length * 2))
                 .dran(pits.get(length - 1).isLastUpdated() ? player1 : player2)
+                .length(length)
                 .build();
     }
 }
