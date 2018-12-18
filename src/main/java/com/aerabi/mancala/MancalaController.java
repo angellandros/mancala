@@ -1,13 +1,28 @@
 package com.aerabi.mancala;
 
 import com.aerabi.mancala.models.MancalaGameBoard;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class MancalaController {
-    @GetMapping("/start")
-    public MancalaGameBoard start() {
-        return MancalaGameBoard.empty();
+
+    private final MancalaService service;
+
+    public MancalaController() {
+        service = new MancalaServiceImpl();
+    }
+
+    @PostMapping("/start")
+    public MancalaGameBoard start(
+            @RequestParam final String player1, @RequestParam final String player2) {
+        return service.newGame(player1, player2);
+    }
+
+    @PutMapping("/play")
+    public MancalaGameBoard play(@RequestParam final String player, @RequestParam final int index) {
+        return service.play(player, index);
     }
 }
