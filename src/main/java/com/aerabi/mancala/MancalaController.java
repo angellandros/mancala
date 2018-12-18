@@ -18,8 +18,7 @@ public class MancalaController {
     }
 
     @PostMapping("/start")
-    public String start(
-            @RequestParam final String player1, @RequestParam final String player2) {
+    public String start(@RequestParam final String player1, @RequestParam final String player2) {
         return representableGameBoard(service.newGame(player1, player2));
     }
 
