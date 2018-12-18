@@ -9,27 +9,34 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface MancalaGameBoard {
-    ImmutableMap<String, ImmutableList<Integer>> getBoard();
+    /** Game board as a map from player to their pits */
+    ImmutableMap<String, ImmutableList<ImmutableCell>> getBoard();
+
+    /** Wer ist dran? */
+    String getDran();
 
     static ImmutableMancalaGameBoard initial(
             int pitCount, int stoneCount, String player1, String player2) {
-        final ImmutableList<Integer> initialState =
+        final ImmutableList<ImmutableCell> initialState =
                 IntStream.rangeClosed(0, pitCount)
-                        .map(i -> i == pitCount ? 0 : stoneCount)
                         .boxed()
+                        .map(index -> Cell.of(index, index == pitCount ? 0 : stoneCount))
+                        .map(cell -> cell.getIndex() == pitCount ? cell.withIsBigPit(true) : cell)
                         .collect(toImmutableList());
         return ImmutableMancalaGameBoard.builder()
                 .putBoard(player1, initialState)
                 .putBoard(player2, initialState)
+                .dran(player1)
                 .build();
     }
 
     static ImmutableMancalaGameBoard fromList(
-            ImmutableList<Integer> pits, String player1, String player2) {
+            ImmutableList<ImmutableCell> pits, String player1, String player2) {
         final int length = pits.size() / 2;
         return ImmutableMancalaGameBoard.builder()
                 .putBoard(player1, pits.subList(0, length))
                 .putBoard(player2, pits.subList(length, length * 2))
+                .dran(pits.get(length).isLastUpdated() ? player1 : player2)
                 .build();
     }
 }
