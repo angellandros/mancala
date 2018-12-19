@@ -36,3 +36,54 @@ $ mvn fmt:check
 $ mvn dependecy:analyze
 ```
 Travis-CI also runs all these tests for every push.
+
+## Custome Client
+The server exposes two endpoints:
+- POST `/start`
+    - `player1` : String
+    - `player2` : String
+- PUT `/play`
+    - `player` : String
+    - `index` : Integer
+    
+The result for both of them is a game board JSON:
+```
+{
+    "board":{
+        "Ludwig":[
+            {
+                "index":0,
+                "stones":6,
+                "lastUpdated":false,
+                "bigPit":false
+            },
+            ...
+        ],
+        "Wolfgang":[
+            {
+                "index":0,
+                "stones":6,
+                "lastUpdated":false,
+                "bigPit":false
+            },
+            ...
+            {
+                "index":6,
+                "stones":0,
+                "lastUpdated":false,
+                "bigPit":true
+            }
+        ]
+    },
+    "dran":"Ludwig",
+    "length":6,
+    "finished":false
+}
+```
+The attribute `dran` indicates whose turn is it at the moment, 
+and `finished` indicates if the game is over (in which case `dran` shows the winner).
+
+The current implementation is not distributable, but supports online multiplaying and multiple simultaneous games,
+with the restriction that each player can play one game at a time.
+Also, it is possible to have multiple instances of the application, only if a
+load-balancer redirects a user always to the same server.
