@@ -6,3 +6,4 @@ install:
 script:
 - mvn test -B
 - mvn fmt:check
+- mvn dependency:analyze
