@@ -63,9 +63,13 @@ public class MancalaServiceImpl implements MancalaService {
                         .addAll(board.getBoard().get(opponent))
                         .build();
         // Check for capture
-        final boolean capture = finalMove < length && linear.get(finalMove).getStones() == 0;
         final int captureCellIndex = (length - finalMove) + length;
+        final boolean capture =
+                finalMove < length
+                        && linear.get(finalMove).getStones() == 0
+                        && linear.get(captureCellIndex).getStones() != 0;
         final int captureStoneCount = capture ? linear.get(captureCellIndex).getStones() + 1 : 0;
+        // Create the updated board
         final ImmutableList<ImmutableCell> newLinear =
                 IntStream.range(0, linear.size())
                         .boxed()
