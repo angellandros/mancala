@@ -8,6 +8,7 @@ import com.aerabi.mancala.models.ImmutableCell;
 import com.aerabi.mancala.models.ImmutableMancalaGameBoard;
 import com.aerabi.mancala.models.MancalaGameBoard;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,11 +56,16 @@ public class MancalaServiceImpl implements MancalaService {
         final String opponent = getOpponent(board, player);
 
         final Range<Integer> distributeRange = getDistributeRange(board, player, pitIndex);
+        final int finalMove = distributeRange.upperEndpoint();
         final ImmutableList<ImmutableCell> linear =
                 ImmutableList.<ImmutableCell>builder()
                         .addAll(board.getBoard().get(player))
                         .addAll(board.getBoard().get(opponent))
                         .build();
+        // Check for capture
+        final boolean capture = finalMove < length && linear.get(finalMove).getStones() == 0;
+        final int captureCellIndex = (length - finalMove) + length;
+        final int captureStoneCount = capture ? linear.get(captureCellIndex).getStones() + 1 : 0;
         final ImmutableList<ImmutableCell> newLinear =
                 IntStream.range(0, linear.size())
                         .boxed()
@@ -72,15 +78,30 @@ public class MancalaServiceImpl implements MancalaService {
                                         distributeRange.contains(cell.getIndex())
                                                 ? cell.plusStones(1)
                                                 : cell)
-                        // Flag the last updated cell to decide turns
+                        // Flag the last updated cell
                         .map(
                                 cell ->
-                                        distributeRange.upperEndpoint() == cell.getIndex()
+                                        finalMove == cell.getIndex()
                                                 ? cell.withIsLastUpdated(true)
+                                                : cell)
+                        // Possibly capture stones
+                        .map(
+                                cell ->
+                                        capture
+                                                        && ImmutableSet.of(
+                                                                        finalMove, captureCellIndex)
+                                                                .contains(cell.getIndex())
+                                                ? cell.withStones(0)
+                                                : cell)
+                        .map(
+                                cell ->
+                                        capture && cell.getIndex() == length
+                                                ? cell.plusStones(captureStoneCount)
                                                 : cell)
                         // Reindex
                         .map(cell -> cell.withIndex(cell.getIndex() % length))
                         .collect(toImmutableList());
+
         ImmutableMancalaGameBoard newBoard = MancalaGameBoard.fromList(newLinear, player, opponent);
         games.put(id, newBoard);
         return newBoard;

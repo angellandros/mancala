@@ -36,12 +36,12 @@ public interface MancalaGameBoard {
 
     static ImmutableMancalaGameBoard fromList(
             ImmutableList<ImmutableCell> pits, String player1, String player2) {
-        final int length = pits.size() / 2;
+        final int lengthPlus = pits.size() / 2;
         return ImmutableMancalaGameBoard.builder()
-                .putBoard(player1, pits.subList(0, length))
-                .putBoard(player2, pits.subList(length, length * 2))
-                .dran(pits.get(length - 1).isLastUpdated() ? player1 : player2)
-                .length(length)
+                .putBoard(player1, pits.subList(0, lengthPlus))
+                .putBoard(player2, pits.subList(lengthPlus, lengthPlus * 2))
+                .dran(pits.get(lengthPlus - 1).isLastUpdated() ? player1 : player2)
+                .length(lengthPlus - 1)
                 .build();
     }
 }
