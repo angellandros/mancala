@@ -44,12 +44,14 @@ public class MancalaServiceImpl implements MancalaService {
                 "It's not %s's turn; %s ist dran.",
                 player,
                 board.getDran());
+        final int length = board.getLength();
         checkArgument(
-                Range.closedOpen(0, board.getLength()).contains(pitIndex),
-                "Invalid pit index, please choose in between 0 and %d",
-                board.getLength() - 1);
+                Range.closedOpen(0, length).contains(pitIndex),
+                "Invalid pit index, please choose  between 0 and %d.",
+                length - 1);
         checkArgument(
-                board.getBoard().get(player).get(pitIndex).getStones() != 0, "Chosen pit is empty");
+                board.getBoard().get(player).get(pitIndex).getStones() != 0,
+                "Chosen pit is empty.");
         final String opponent = getOpponent(board, player);
 
         final Range<Integer> distributeRange = getDistributeRange(board, player, pitIndex);
@@ -58,7 +60,6 @@ public class MancalaServiceImpl implements MancalaService {
                         .addAll(board.getBoard().get(player))
                         .addAll(board.getBoard().get(opponent))
                         .build();
-        final int length = linear.size() / 2;
         final ImmutableList<ImmutableCell> newLinear =
                 IntStream.range(0, linear.size())
                         .boxed()
